@@ -7,6 +7,8 @@
 
 #include <SparseMatrix.h>
 #include <Vector.h>
+#include <Eigen/Dense>
+#include <iostream>
 
 using namespace DataStructure;
 
@@ -55,6 +57,8 @@ public:
         int *Lp = A.getLp();
         int *Li = A.getLi();
 
+        int nz = A.getNz();
+
         for (long j = 0; j < A.getSize(); j++) {
 
             Lxx[j] /= Lx[Lp[j]];
@@ -74,6 +78,46 @@ public:
 
 
     int verify() {
+
+        //Reinitialize X
+        T *Lxx = x.getLx();
+        x.read();
+
+        long M = A.getSize();
+        int nz = A.getNz();
+
+        T *Lx = A.getLx();
+        T *Lxv = x.getLx();
+
+        int *Lp = A.getLp();
+        int *Li = A.getLi();
+
+        Eigen::MatrixXd A(M, M);
+        Eigen::VectorXd b(M, 1), xV(M, 1);
+        A.setZero();
+
+        for (int j = 0; j < M + 1; j++) {
+            for (int p = Lp[j]; p < Lp[j + 1]; p++) {
+                printf("\n(%d %d %f)", Li[p], j, Lx[p]);
+                A(Li[p], j) = Lx[p];
+            }
+        }
+
+
+        for (int i = 0; i < M; i++) {
+            b(i) = Lxv[i];
+        }
+
+        xV = A.triangularView<Eigen::Lower>().solve(b);
+
+        printf("Verification:");
+        for (int i = 0; i < M; i++){
+            if(abs(xV[i]-Lxx[i]) > 1e-10){
+                printf("\n(%d %f)", i, Lxx[i]);
+            }
+        }
+
+//        printf("\n(%g, %g, %g, %g, %g, %g, %g)\n", xT(0), xT(1), xT(2), xT(3), xT(4), xT(5), xT(6));
 
     }
 };

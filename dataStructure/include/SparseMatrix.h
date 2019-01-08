@@ -83,8 +83,10 @@ namespace DataStructure {
             if (f != stdin) {
                 fclose(f);
             }
+        }
 
-
+        int getNz(){
+            return this->nz;
         }
 
         int *getLp() {
@@ -106,15 +108,15 @@ namespace DataStructure {
         void print() {
             /* print matrix */
             for (i = 0; i < nz; i++) {
-                fprintf(stdout, "%2g ", Lx[i]);
+                fprintf(stdout, " Lx: %2g ", Lx[i]);
             }
             fprintf(stdout, "\n");
             for (i = 0; i < nz; i++) {
-                fprintf(stdout, " %d ", Li[i]);
+                fprintf(stdout, " Li: %d ", Li[i]);
             }
             fprintf(stdout, "\n");
             for (i = 0; i < Ij; i++) {
-                fprintf(stdout, " %d ", Lp[i]);
+                fprintf(stdout, " Lp: %d ", Lp[i]);
             }
             fprintf(stdout, "\n");
             fprintf(stdout, "\n");
