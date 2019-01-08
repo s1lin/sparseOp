@@ -1,8 +1,6 @@
 //
 // Created by shilei on 1/8/19.
 //
-//#include "structure/SparseMatrix.h"
-//#include "structure/Vector.h"
 
 #include "SparseMatrix.h"
 #include "Vector.h"
@@ -13,19 +11,19 @@ using namespace DataStructure;
 
 
 int main() {
+
     SparseMatrix<double> A("/home/shilei/CLionProjects/SparseTriangularSolve/matrix/b1_ss.mtx");
+
     Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/SparseTriangularSolve/matrix/b1_ss_b.mtx");
 
     A.read();
     b.read();
 
-    A.print();
-    b.print();
+//    A.print();
+//    b.print();
 
     TriangularSolve<VectorType::sparse, double> triangularSolve1(A, b);
 
-    triangularSolve1.setA(A);
-    triangularSolve1.setx(b);
     triangularSolve1.lsolve();
 
 //    Eigen::MatrixXd m(7, 7);
