@@ -7,7 +7,8 @@
 
 #include <SparseMatrix.h>
 #include <Vector.h>
-#include <Eigen/Dense>
+#include <Eigen/SparseCore>
+#include <Eigen/Sparse>
 #include <iostream>
 
 using namespace DataStructure;
@@ -59,7 +60,7 @@ public:
 
         int nz = A.getNz();
 
-        for (long j = 0; j < A.getSize(); j++) {
+        for (int j = 0; j < A.getSize(); j++) {
 
             Lxx[j] /= Lx[Lp[j]];
 
@@ -69,10 +70,10 @@ public:
 
         }
 
-        fprintf(stdout, "Solution:");
-        for (int i = 0; i < x.getSize(); i++) {
-            fprintf(stdout, " %f ", Lxx[i]);
-        }
+//        fprintf(stdout, "Solution:");
+//        for (int i = 0; i < x.getSize(); i++) {
+//            fprintf(stdout, " %f ", Lxx[i]);
+//        }
 
     }
 
@@ -83,7 +84,7 @@ public:
         T *Lxx = x.getLx();
         x.read();
 
-        long M = A.getSize();
+        int M = A.getSize();
         int nz = A.getNz();
 
         T *Lx = A.getLx();
@@ -92,32 +93,38 @@ public:
         int *Lp = A.getLp();
         int *Li = A.getLi();
 
-        Eigen::MatrixXd A(M, M);
+        Eigen::SparseMatrix<double, Eigen::RowMajor, long int> A(M, M);
         Eigen::VectorXd b(M, 1), xV(M, 1);
-        A.setZero();
 
-        for (int j = 0; j < M + 1; j++) {
+        typedef  Eigen::Triplet<double> Triplet;
+        std::vector<Triplet> triplets;
+
+        triplets.reserve(nz);
+
+        for (int j = 0; j < M; j++) {
             for (int p = Lp[j]; p < Lp[j + 1]; p++) {
-                printf("\n(%d %d %f)", Li[p], j, Lx[p]);
-                A(Li[p], j) = Lx[p];
+//                printf("\n(%d %d %f)", Li[p], j, Lx[p]);
+//                printf("\n(%d)", Li[p]);
+                triplets.push_back(Triplet(Li[p],j,Lx[p]));
+//                A.coeffRef(Li[p], j) = Lx[p];
             }
         }
 
+        A.setFromTriplets(triplets.begin(), triplets.end());
 
         for (int i = 0; i < M; i++) {
             b(i) = Lxv[i];
         }
 
+//        cout<< A<< endl;
         xV = A.triangularView<Eigen::Lower>().solve(b);
 
         printf("Verification:");
-        for (int i = 0; i < M; i++){
-            if(abs(xV[i]-Lxx[i]) > 1e-10){
+        for (int i = 0; i < M; i++) {
+            if (abs(xV[i] - Lxx[i]) > 1e-10) {
                 printf("\n(%d %f)", i, Lxx[i]);
             }
         }
-
-//        printf("\n(%g, %g, %g, %g, %g, %g, %g)\n", xT(0), xT(1), xT(2), xT(3), xT(4), xT(5), xT(6));
 
     }
 };

@@ -101,7 +101,7 @@ namespace DataStructure {
             return this->Lx;
         }
 
-        long getSize() {
+        int getSize() {
             return this->M;
         }
 

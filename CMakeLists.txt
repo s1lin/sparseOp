@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
-project(SparseOp2)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+project(SparseOp2 CXX)
+#set(CMAKE_AUTOMOC ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 find_package(OpenMP)
 if (OPENMP_FOUND)

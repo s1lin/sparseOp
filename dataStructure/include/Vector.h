@@ -94,9 +94,6 @@ namespace DataStructure {
             if ((ret_code = mm_read_mtx_array_size(f, &M, &N)) != 0)
                 exit(1);
 
-            fprintf(stdout, "M:%d\n", M);
-            fprintf(stdout, "N:%d\n", N);
-
             /* compressed column storage */
 
             Lx = (T *) malloc(M * sizeof(T));
@@ -104,7 +101,6 @@ namespace DataStructure {
             for (i = 0; i < M; i++) {
                 T curr_val;
                 fscanf(f, "%lg\n", &curr_val);
-                fprintf(stdout, "value:%lg\n", curr_val);
                 Lx[i] = curr_val;
             }
 
