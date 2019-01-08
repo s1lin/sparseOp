@@ -10,4 +10,4 @@ target_link_libraries(${PROJECT_NAME}
         sub::helper
         sub::structure
         sub::solver
-)
+        )

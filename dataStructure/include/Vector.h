@@ -26,7 +26,7 @@ namespace DataStructure {
         const char *mtx_file;
 
     public:
-        Vector(){
+        Vector() {
 
         }
 

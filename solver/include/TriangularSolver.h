@@ -96,7 +96,7 @@ public:
         Eigen::SparseMatrix<double, Eigen::RowMajor, long int> A(M, M);
         Eigen::VectorXd b(M, 1), xV(M, 1);
 
-        typedef  Eigen::Triplet<double> Triplet;
+        typedef Eigen::Triplet<double> Triplet;
         std::vector<Triplet> triplets;
 
         triplets.reserve(nz);
@@ -104,9 +104,7 @@ public:
         for (int j = 0; j < M; j++) {
             for (int p = Lp[j]; p < Lp[j + 1]; p++) {
 //                printf("\n(%d %d %f)", Li[p], j, Lx[p]);
-//                printf("\n(%d)", Li[p]);
-                triplets.push_back(Triplet(Li[p],j,Lx[p]));
-//                A.coeffRef(Li[p], j) = Lx[p];
+                triplets.push_back(Triplet(Li[p], j, Lx[p]));
             }
         }
 

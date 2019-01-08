@@ -26,7 +26,7 @@ namespace DataStructure {
         const char *mtx_file;
 
     public:
-        SparseMatrix(){
+        SparseMatrix() {
 
         }
 
@@ -85,7 +85,7 @@ namespace DataStructure {
             }
         }
 
-        int getNz(){
+        int getNz() {
             return this->nz;
         }
 
