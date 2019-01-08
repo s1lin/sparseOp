@@ -71,7 +71,47 @@ namespace DataStructure {
 
     private:
 
-        void readDense(const char *mtx) {}
+        void readDense(const char *mtx) {
+            mtx_file = mtx;
+            if ((f = fopen(mtx_file, "r")) == nullptr)
+                exit(1);
+
+
+            if (mm_read_banner(f, &matcode) != 0) {
+                printf("Could not process Matrix Market banner.\n");
+                exit(1);
+            }
+
+
+            if (mm_is_complex(matcode) && mm_is_matrix(matcode) &&
+                mm_is_sparse(matcode)) {
+                printf("Not support Matrix type: [%s]\n", mm_typecode_to_str(matcode));
+                exit(1);
+            }
+
+            /* dimension*/
+            int N;
+            if ((ret_code = mm_read_mtx_array_size(f, &M, &N)) != 0)
+                exit(1);
+
+            fprintf(stdout, "M:%d\n", M);
+            fprintf(stdout, "N:%d\n", N);
+
+            /* compressed column storage */
+
+            Lx = (T *) malloc(M * sizeof(T));
+
+            for (i = 0; i < M; i++) {
+                T curr_val;
+                fscanf(f, "%lg\n", &curr_val);
+                fprintf(stdout, "value:%lg\n", curr_val);
+                Lx[i] = curr_val;
+            }
+
+            if (f != stdin) {
+                fclose(f);
+            }
+        }
 
         void readSparse(const char *mtx) {
             mtx_file = mtx;
@@ -91,13 +131,13 @@ namespace DataStructure {
                 exit(1);
             }
 
-/* dimension*/
+            /* dimension*/
             int N;
             if ((ret_code = mm_read_mtx_crd_size(f, &M, &N, &nz)) != 0)
                 exit(1);
 
 
-/* compressed column storage */
+            /* compressed column storage */
 
             Lx = (T *) malloc(M * sizeof(T));
 

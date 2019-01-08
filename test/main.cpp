@@ -12,17 +12,17 @@ using namespace DataStructure;
 
 int main() {
 
-    SparseMatrix<double> A("/home/shilei/CLionProjects/SparseTriangularSolve/matrix/b1_ss.mtx");
+    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss.mtx");
 
-    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/SparseTriangularSolve/matrix/b1_ss_b.mtx");
+    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b.mtx");
 
     A.read();
     b.read();
 
 //    A.print();
-//    b.print();
+    b.print();
 
-    TriangularSolve<VectorType::sparse, double> triangularSolve1(A, b);
+    TriangularSolve<VectorType::dense, double> triangularSolve1(A, b);
 
     triangularSolve1.lsolve();
 
