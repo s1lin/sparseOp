@@ -71,11 +71,6 @@ public:
 
         }
 
-//        fprintf(stdout, "Solution:");
-//        for (int i = 0; i < x.getSize(); i++) {
-//            fprintf(stdout, " %f ", Lxx[i]);
-//        }
-
     }
 
 
@@ -105,7 +100,6 @@ public:
 //        #pragma omp for
         for (int j = 0; j < M; j++) {
             for (int p = Lp[j]; p < Lp[j + 1]; p++) {
-//                printf("\n(%d %d %f)", Li[p], j, Lx[p]);
                 triplets.push_back(Triplet(Li[p], j, Lx[p]));
             }
         }

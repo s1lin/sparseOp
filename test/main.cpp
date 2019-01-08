@@ -6,8 +6,6 @@
 #include "Vector.h"
 #include "TriangularSolver.h"
 
-#include <sys/time.h>
-
 using namespace DataStructure;
 using namespace std;
 
