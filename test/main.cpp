@@ -16,7 +16,7 @@ int main() {
     struct timeval tim;
 
     SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/af_0_k101.mtx");
-    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_dense_af_0_k101.mtx");
+    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_sparse_af_0_k101.mtx");
 
 //    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss.mtx");
 //    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b.mtx");
@@ -48,7 +48,7 @@ int main() {
 //    A.print();
 //    b.print();
 
-    TriangularSolve<VectorType::dense, double> triangularSolve1(A, b);
+    TriangularSolve<VectorType::sparse, double> triangularSolve1(A, b);
 
 
     cout << "-------Begin to solve-------" << endl;
@@ -64,13 +64,7 @@ int main() {
 
 
     cout << "-------Begin to verify-------" << endl;
-    gettimeofday(&tim, NULL);
-    t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
-
     triangularSolve1.verify();
-
-    t2 = tim.tv_sec + (tim.tv_usec / 1e+6);
-    cout << "Verify Used:" << t2 - t1 << "s." << endl;
     cout << "Finish Verifing." << endl;
 
     return 0;

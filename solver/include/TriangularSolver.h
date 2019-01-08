@@ -10,6 +10,7 @@
 #include <Eigen/SparseCore>
 #include <Eigen/Sparse>
 #include <iostream>
+#include <sys/time.h>
 
 using namespace DataStructure;
 
@@ -101,7 +102,7 @@ public:
 
         triplets.reserve(nz);
 
-        #pragma omp for
+//        #pragma omp for
         for (int j = 0; j < M; j++) {
             for (int p = Lp[j]; p < Lp[j + 1]; p++) {
 //                printf("\n(%d %d %f)", Li[p], j, Lx[p]);
@@ -115,15 +116,29 @@ public:
             b(i) = Lxv[i];
         }
 
+        struct timeval tim;
+
+        cout << "Eigen-------" << endl;
+        gettimeofday(&tim, NULL);
+        double t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
+
         xV = A.triangularView<Eigen::Lower>().solve(b);
 
+        gettimeofday(&tim, NULL);
+        double t2 = tim.tv_sec + (tim.tv_usec / 1e+6);
+        cout << "Eigen Solve Used:" << t2 - t1 << "s." << endl;
+
         printf("Verification:");
-        for (int i = 0; i < M; i++) {
-            if (abs(xV[i] - Lxx[i]) > 1e-10) {
-                printf("\n(%d %f)", i, Lxx[i]);
+        int index = 0;
+        for (index = 0; index < M; index++) {
+            if (abs(xV[index] - Lxx[index]) > 1e-10) {
+                printf("\n(%d %f)", index, Lxx[index]);
             }
         }
 
+        if (index == M) {
+            printf("Clear!");
+        }
     }
 };
 
