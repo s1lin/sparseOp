@@ -101,6 +101,7 @@ public:
 
         triplets.reserve(nz);
 
+        #pragma omp for
         for (int j = 0; j < M; j++) {
             for (int p = Lp[j]; p < Lp[j + 1]; p++) {
 //                printf("\n(%d %d %f)", Li[p], j, Lx[p]);
@@ -114,7 +115,6 @@ public:
             b(i) = Lxv[i];
         }
 
-//        cout<< A<< endl;
         xV = A.triangularView<Eigen::Lower>().solve(b);
 
         printf("Verification:");

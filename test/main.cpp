@@ -6,10 +6,14 @@
 #include "Vector.h"
 #include "TriangularSolver.h"
 
+#include <sys/time.h>
+
 using namespace DataStructure;
 using namespace std;
 
 int main() {
+
+    struct timeval tim;
 
     SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/af_0_k101.mtx");
     Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_dense_af_0_k101.mtx");
@@ -17,25 +21,57 @@ int main() {
 //    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss.mtx");
 //    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b.mtx");
 
-    cout << "Begin initialize A" << endl;
+    cout << "-------Begin initialize A-------" << endl;
+
+    gettimeofday(&tim, NULL);
+    double t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
+
     A.read();
-    cout << "Finish initializing A" << endl;
-    cout << "Begin initializing b" << endl;
+
+    gettimeofday(&tim, NULL);
+    double t2 = tim.tv_sec + (tim.tv_usec / 1e+6);
+    cout << "Initializing A Used:" << t2 - t1 << "s." << endl;
+    cout << "Finish initializing A" << "\n\n";
+
+
+    cout << "-------Begin initializing b-------" << endl;
+    gettimeofday(&tim, NULL);
+    t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
+
     b.read();
-    cout << "Finish initializing b" << endl;
+
+    gettimeofday(&tim, NULL);
+    t2 = tim.tv_sec + (tim.tv_usec / 1e+6);
+    cout << "Initializing B Used:" << t2 - t1 << "s." << endl;
+    cout << "Finish initializing b" << "\n\n";
 
 //    A.print();
 //    b.print();
 
     TriangularSolve<VectorType::dense, double> triangularSolve1(A, b);
 
-    cout << "start to solve by the triangular solver" << endl;
-    triangularSolve1.lsolve();
-    cout << "finish solving." << endl;
 
-    cout << "start to verify solution by Eigen" << endl;
+    cout << "-------Begin to solve-------" << endl;
+    gettimeofday(&tim, NULL);
+    t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
+
+    triangularSolve1.lsolve();
+
+    gettimeofday(&tim, NULL);
+    t2 = tim.tv_sec + (tim.tv_usec / 1e+6);
+    cout << "Solve Used:" << t2 - t1 << "s." << endl;
+    cout << "Finish Solving." << "\n\n";
+
+
+    cout << "-------Begin to verify-------" << endl;
+    gettimeofday(&tim, NULL);
+    t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
+
     triangularSolve1.verify();
-    cout << "finish verify." << endl;
+
+    t2 = tim.tv_sec + (tim.tv_usec / 1e+6);
+    cout << "Verify Used:" << t2 - t1 << "s." << endl;
+    cout << "Finish Verifing." << endl;
 
     return 0;
 }
