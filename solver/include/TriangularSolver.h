@@ -15,7 +15,9 @@
 #include <sys/time.h>
 #include <omp.h>
 #include <set>
+#include <list>
 #include <iterator>
+#include <algorithm>
 
 using namespace DataStructure;
 
@@ -26,7 +28,10 @@ class TriangularSolve {
 
     Vector<VectorType, T> x;
 
-    std::set<int> reachSet;
+    struct ReachSet {
+        std::set<int> rs;
+        std::list<int> os;
+    } reachSet;
 
 public:
 
@@ -85,6 +90,7 @@ public:
 
         if (VectorType == VectorType::sparse) {
             analysis();
+            lsolve_sparse();
         }
 
         T *Lx = A.getLx();
@@ -96,6 +102,28 @@ public:
         int nz = A.getNz();
 
         for (int j = 0; j < A.getSize(); j++) {
+
+            Lxx[j] /= Lx[Lp[j]];
+
+            for (int p = Lp[j] + 1; p < Lp[j + 1]; p++) {
+                Lxx[Li[p]] -= Lx[p] * Lxx[j];
+            }
+
+        }
+
+    }
+
+    int lsolve_sparse() {
+
+        T *Lx = A.getLx();
+        T *Lxx = x.getLx();
+
+        int *Lp = A.getLp();
+        int *Li = A.getLi();
+
+        int nz = A.getNz();
+
+        for (int j : reachSet.os) {
 
             Lxx[j] /= Lx[Lp[j]];
 
@@ -152,7 +180,11 @@ public:
         std::set<int> nzB = x.getNzB();
 
         for (int i : nzB) {
-            this->reachSet.insert(i);
+
+            if (this->reachSet.rs.insert(i).second) {
+                this->reachSet.os.push_back(i);
+            }
+
             int index = i;
             int j = Lp[index];
 
@@ -165,14 +197,15 @@ public:
                     j++;
                     continue;
                 }
-//                cout << "Li[" << j << "]:" << Li[j] << "     ";
-                if (!this->reachSet.insert(Li[j]).second) {
+                cout << "Li[" << j << "]:" << Li[j] << "     ";
+                if (!this->reachSet.rs.insert(Li[j]).second) {
                     j++;
                     continue;
                 }
+                this->reachSet.os.push_back(Li[j]);
 
                 for (int p = j + 1; p < nz; p++) {
-                    if (Li[p] == Li[j] && !this->reachSet.insert(Li[p]).second) {
+                    if (Li[p] == Li[j] && !this->reachSet.rs.insert(Li[p]).second) {
                         cout << "Inner: Li[" << p << "]:" << Li[p] << " \n";
                         index = Li[p];
                         j = Lp[index];
@@ -180,15 +213,15 @@ public:
                     }
                 }
 
-
             }
         }
 
-        cout << endl << "ReachSet: Size=" << reachSet.size() << "\n value: ";
+        cout << endl << "ReachSet: Size=" << reachSet.rs.size() << "\n value: ";
 
-        for (int i:reachSet) {
-            cout << i + 1 << " ";
+        for (int i:reachSet.os) {
+            cout << i << " ";
         }
+        cout << endl;
     }
 
     int verify() {
