@@ -17,9 +17,9 @@ int main() {
     Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_sparse_af_0_k101.mtx");
 //    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_dense_af_0_k101.mtx");
 
-//    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/testA.mtx");
+//    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/testB.mtx");
 //    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b.mtx");
-//    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/testA_b_sparse.mtx");
+//    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/testB_b_sparse.mtx");
 
     cout << "-------Begin initialize A-------" << endl;
 

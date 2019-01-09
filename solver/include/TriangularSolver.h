@@ -136,8 +136,6 @@ public:
             }
 
         }
-
-
     }
 
 
@@ -154,12 +152,12 @@ public:
         std::set<int> nzB = x.getNzB();
 
         for (int i : nzB) {
-            reachSet.insert(i);
+            this->reachSet.insert(i);
             int index = i;
             int j = Lp[index];
 
             while (j < Lp[index + 1]) {
-                cout <<"Li["<< j << "]:" << Li[j] << "     ";
+
                 if (Li[j] == index) {
                     if ((Lp[index + 1] - Lp[index] == 1)) {
                         break;
@@ -167,25 +165,29 @@ public:
                     j++;
                     continue;
                 }
+//                cout << "Li[" << j << "]:" << Li[j] << "     ";
+                if (!this->reachSet.insert(Li[j]).second) {
+                    j++;
+                    continue;
+                }
 
-                this->reachSet.insert(Li[j]);
-
-                for(int p = j + 1; p < nz; p++){
-                    if(Li[p] == Li[j]){
-                        cout <<"Inner: Li[" << p << "]:" << Li[p] << " \n";
-                        this->reachSet.insert(Li[p]);
+                for (int p = j + 1; p < nz; p++) {
+                    if (Li[p] == Li[j] && !this->reachSet.insert(Li[p]).second) {
+                        cout << "Inner: Li[" << p << "]:" << Li[p] << " \n";
                         index = Li[p];
                         j = Lp[index];
                         break;
                     }
                 }
+
+
             }
         }
 
-        cout << endl << "ReachSet: Size=" << reachSet.size() <<"\n value: ";
+        cout << endl << "ReachSet: Size=" << reachSet.size() << "\n value: ";
 
         for (int i:reachSet) {
-            cout << i << " ";
+            cout << i + 1 << " ";
         }
     }
 
