@@ -6,6 +6,8 @@
 #define SPARSEOP2_VECTOR_H
 
 #include <cstdio>
+#include <set>
+#include <iterator>
 #include "Constants.h"
 
 extern "C" {
@@ -18,12 +20,18 @@ namespace DataStructure {
 
     template<unsigned int VT, class T>
     class Vector {
-        int ret_code;
+
+        int ret_code, i, M, nz;
+
         MM_typecode matcode;
+
         FILE *f;
-        int i, M, nz;
+
         T *Lx;
+
         const char *mtx_file;
+
+        std::set<int> nzB;
 
     public:
         Vector() {
@@ -54,6 +62,10 @@ namespace DataStructure {
 
         T *getLx() {
             return this->Lx;
+        }
+
+        std::set<int> getNzB(){
+            return this->nzB;
         }
 
 
@@ -142,6 +154,7 @@ namespace DataStructure {
                 T curr_val;
                 fscanf(f, "%d %d %lg\n", &curr_i, &curr_j, &curr_val);
                 Lx[curr_i - 1] = curr_val;
+                nzB.insert(curr_i - 1);//B = {i|bi != 0} the index of nonzero elements of b.
             }
 
             if (f != stdin) {

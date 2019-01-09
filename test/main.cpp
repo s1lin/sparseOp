@@ -13,11 +13,13 @@ int main() {
 
     struct timeval tim;
 
-    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/af_0_k101.mtx");
-    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_sparse_af_0_k101.mtx");
+//    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/af_0_k101.mtx");
+//    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_sparse_af_0_k101.mtx");
+//    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_dense_af_0_k101.mtx");
 
-//    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss.mtx");
+    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/testA.mtx");
 //    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b.mtx");
+    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/testA_b_sparse.mtx");
 
     cout << "-------Begin initialize A-------" << endl;
 
@@ -31,8 +33,9 @@ int main() {
     cout << "Initializing A Used:" << t2 - t1 << "s." << endl;
     cout << "Finish initializing A" << "\n\n";
 
+    A.print();
 
-    cout << "-------Begin initializing b-------" << endl;
+    cout << "-------Begin initialize b-------" << endl;
     gettimeofday(&tim, NULL);
     t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
 
@@ -43,13 +46,11 @@ int main() {
     cout << "Initializing B Used:" << t2 - t1 << "s." << endl;
     cout << "Finish initializing b" << "\n\n";
 
-//    A.print();
-//    b.print();
-
     TriangularSolve<VectorType::sparse, double> triangularSolve1(A, b);
+//    TriangularSolve<VectorType::dense, double> triangularSolve1(A, b);
 
 
-    cout << "-------Begin to solve-------" << endl;
+    cout << "-------Begin Serial solve-------" << endl;
     gettimeofday(&tim, NULL);
     t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
 
@@ -60,6 +61,23 @@ int main() {
     cout << "Solve Used:" << t2 - t1 << "s." << endl;
     cout << "Finish Solving." << "\n\n";
 
+//    b.print();
+    //Reinitialize b
+    b.read();
+//    b.print();
+
+//    cout << "-------Begin Parallel solve-------" << endl;
+//    gettimeofday(&tim, NULL);
+//    t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
+//
+//    triangularSolve1.lsolve_parallel(1);
+//
+//    gettimeofday(&tim, NULL);
+//    t2 = tim.tv_sec + (tim.tv_usec / 1e+6);
+//    cout << "Solve Used:" << t2 - t1 << "s." << endl;
+//    cout << "Finish Solving." << "\n\n";
+
+//    b.print();
 
     cout << "-------Begin to verify-------" << endl;
     triangularSolve1.verify();

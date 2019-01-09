@@ -7,6 +7,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <omp.h>
 
 #include "../../helper/mmio.h"
 
@@ -62,10 +63,15 @@ namespace DataStructure {
             Lp = (int *) malloc((M + 1) * sizeof(int));
             Li = (int *) malloc(nz * sizeof(int));
             Lx = (T *) malloc(nz * sizeof(T));
+
             Ij = 1;
             Lp[0] = 0;
+
             int prev_j = 0;
+
+//            #pragma omp parallel for num_threads(2)
             for (i = 0; i < nz; i++) {
+//                printf("i = %d, j= %d, threadId = %d \n", i, omp_get_thread_num());
                 int curr_j, curr_i;
                 T curr_val;
                 fscanf(f, "%d %d %lg\n", &curr_i, &curr_j, &Lx[i]);
@@ -77,6 +83,8 @@ namespace DataStructure {
                     prev_j = curr_j;
                 }
             }
+
+
             Lp[Ij] = nz;
             Ij++;
 
@@ -107,16 +115,17 @@ namespace DataStructure {
 
         void print() {
             /* print matrix */
+            fprintf(stdout, "Lx:");
             for (i = 0; i < nz; i++) {
-                fprintf(stdout, " Lx: %2g ", Lx[i]);
+                fprintf(stdout, " %2g ", Lx[i]);
             }
-            fprintf(stdout, "\n");
+            fprintf(stdout, "\n Li:");
             for (i = 0; i < nz; i++) {
-                fprintf(stdout, " Li: %d ", Li[i]);
+                fprintf(stdout, " %d ", Li[i]);
             }
-            fprintf(stdout, "\n");
+            fprintf(stdout, "\n Lp:");
             for (i = 0; i < Ij; i++) {
-                fprintf(stdout, " Lp: %d ", Lp[i]);
+                fprintf(stdout, " %d ", Lp[i]);
             }
             fprintf(stdout, "\n");
             fprintf(stdout, "\n");
