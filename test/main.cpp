@@ -13,13 +13,13 @@ int main() {
 
     struct timeval tim;
 
-//    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/af_0_k101.mtx");
-//    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_sparse_af_0_k101.mtx");
+    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/af_0_k101.mtx");
+    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_sparse_af_0_k101.mtx");
 //    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_dense_af_0_k101.mtx");
 
-    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/testA.mtx");
+//    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/testA.mtx");
 //    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b.mtx");
-    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/testA_b_sparse.mtx");
+//    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/testA_b_sparse.mtx");
 
     cout << "-------Begin initialize A-------" << endl;
 
@@ -33,7 +33,7 @@ int main() {
     cout << "Initializing A Used:" << t2 - t1 << "s." << endl;
     cout << "Finish initializing A" << "\n\n";
 
-    A.print();
+//    A.print();
 
     cout << "-------Begin initialize b-------" << endl;
     gettimeofday(&tim, NULL);

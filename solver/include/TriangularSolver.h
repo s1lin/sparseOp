@@ -146,6 +146,7 @@ public:
         int e = 1; //level number
 
         int M = A.getSize();//Matrix Size
+        int nz = A.getNz();//Matrix Size
         T *Lx = A.getLx();
         int *Lp = A.getLp();
         int *Li = A.getLi();
@@ -154,34 +155,34 @@ public:
 
         for (int i : nzB) {
             reachSet.insert(i);
-            int j = i;
-            for (j = Lp[i]; j < Lp[i + 1]; j++) {
-                cout <<"Li["<< j << "]:" << Li[j] << " ";
-                if (Li[j] == i) {
-                    if ((Lp[i + 1] - Lp[i] == 1)) {
-                        e++;
+            int index = i;
+            int j = Lp[index];
+
+            while (j < Lp[index + 1]) {
+                cout <<"Li["<< j << "]:" << Li[j] << "     ";
+                if (Li[j] == index) {
+                    if ((Lp[index + 1] - Lp[index] == 1)) {
                         break;
-                    } else {
-                        continue;
                     }
+                    j++;
+                    continue;
                 }
 
-                cout <<"Li[j]:" << Li[j] << " ";
                 this->reachSet.insert(Li[j]);
 
-                for(int p = j; p < M; p++){
-                    if(Li[p] == Li[Lp[j]]){
-                        cout <<"Li[p]:" << Li[p] << " ";
-                        this->reachSet.insert(p);
-                        j = Lp[j];
+                for(int p = j + 1; p < nz; p++){
+                    if(Li[p] == Li[j]){
+                        cout <<"Inner: Li[" << p << "]:" << Li[p] << " \n";
+                        this->reachSet.insert(Li[p]);
+                        index = Li[p];
+                        j = Lp[index];
                         break;
                     }
                 }
-
             }
         }
 
-        cout << endl << "ReachSet:";
+        cout << endl << "ReachSet: Size=" << reachSet.size() <<"\n value: ";
 
         for (int i:reachSet) {
             cout << i << " ";
@@ -219,7 +220,7 @@ public:
 
         A.setFromTriplets(triplets.begin(), triplets.end());
 
-        cout << A;
+//        cout << A;
 
         for (int i = 0; i < M; i++) {
             b(i) = Lxv[i];
