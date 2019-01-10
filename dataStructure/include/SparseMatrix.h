@@ -69,7 +69,7 @@ namespace DataStructure {
 
             int prev_j = 0;
 
-//            #pragma omp parallel for num_threads(2)
+//            #pragma omp parallel for
             for (i = 0; i < nz; i++) {
 //                printf("i = %d, j= %d, threadId = %d \n", i, omp_get_thread_num());
                 int curr_j, curr_i;

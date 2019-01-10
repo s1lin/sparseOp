@@ -18,6 +18,7 @@
 #include <set>
 #include <list>
 #include <iterator>
+#include <stack>
 #include <algorithm>
 
 using namespace std;
@@ -30,10 +31,7 @@ class TriangularSolve {
 
     Vector<VectorType, T> x;
 
-    struct ReachSet {
-        set<int> rs;
-        list<int> os;
-    } reachSet;
+    stack<int> reachSet;
 
     multiset<int> usedNodes;
 
@@ -65,19 +63,11 @@ public:
     */
     int lsolve() {
 
-        if (VectorType == VectorType::sparse) {
-            analysis();
-            lsolve_sparse();
-            return 1;
-        }
-
         T *Lx = A.getLx();
         T *Lxx = x.getLx();
 
         int *Lp = A.getLp();
         int *Li = A.getLi();
-
-        int nz = A.getNz();
 
         for (int j = 0; j < A.getSize(); j++) {
 
@@ -88,7 +78,6 @@ public:
             }
 
         }
-
     }
 
     int lsolve_sparse() {
@@ -99,19 +88,8 @@ public:
         int *Lp = A.getLp();
         int *Li = A.getLi();
 
-        int nz = A.getNz();
-
-        set<int> os;
-        os.insert(13);
-        os.insert(12);
-        os.insert(11);
-        os.insert(8);
-        os.insert(3);
-        os.insert(5);
-        os.insert(9);
-        os.insert(10);
-
-        for (int j : os) {
+        while (!reachSet.empty()) {
+            int j = reachSet.top();
 
             Lxx[j] /= Lx[Lp[j]];
 
@@ -119,102 +97,57 @@ public:
                 Lxx[Li[p]] -= Lx[p] * Lxx[j];
             }
 
+            reachSet.pop();
         }
-
     }
 
     int lsolve_parallel(int num_threads) {
 
-        if (VectorType == VectorType::sparse) {
-            analysis();
-        }
         T *Lx = A.getLx();
         T *Lxx = x.getLx();
 
         int *Lp = A.getLp();
         int *Li = A.getLi();
 
-        int nz = A.getNz();
         int j, p;
 
         omp_set_num_threads(num_threads);
 
-
         for (j = 0; j < A.getSize(); j++) {
             Lxx[j] /= Lx[Lp[j]];
 
-#pragma omp parallel shared(Lx, Lxx, Lp, Li) private(p)
-            cout << omp_get_thread_num() << " ";
-#pragma omp for
-
+            #pragma omp parallel for shared(Lx, Lxx, Lp, Li) private(p)
             for (p = Lp[j] + 1; p < Lp[j + 1]; p++) {
                 Lxx[Li[p]] -= Lx[p] * Lxx[j];
             }
-
         }
     }
 
 
     int analysis() {
 
-        int M = A.getSize();//Matrix Size
-        int nz = A.getNz();//Matrix Size
         int *Lp = A.getLp();
         int *Li = A.getLi();
+
         set<int> nzB = x.getNzB();
-        bool *visited = new bool[M];
 
-        Graph graph(M, nzB);
+        Graph graph(A.getSize(), nzB);
 
-        for (int i : nzB) {
-
-
-            int index = i;
-            int j = Lp[index];
-
-            while (j < Lp[index + 1]) {
-
-                if (Li[j] == index) {
-                    if ((Lp[index + 1] - Lp[index] == 1)) {
-                        break;
-                    }
-                    j++;
-                    continue;
-                }
-
-                for (int p = j + 1; p < nz; p++) {
-                    if (Li[p] == Li[j] && this->usedNodes.count(Li[p]) == 0) {
-                        this->usedNodes.insert(Li[p]);
-                        graph.addEdge(index, Li[p]);
-
-                        cout << "Inner: Li[" << p << "]:" << Li[p] << " \n";
-
-                        index = Li[p];
-                        j = Lp[index];
-                        break;
-                    }
-                }
-
-                j++;
+//        #pragma omp parallel for
+        for (int j = 0; j < A.getSize(); j++) {
+            for (int p = Lp[j] + 1; p < Lp[j + 1]; p++) {
+                graph.addEdge(j, Li[p]);
             }
-
-
         }
 
-        graph.topologicalSort();
-
-        cout << endl << "ReachSet: Size=" << reachSet.rs.size() << "\n value: ";
-//        reachSet.os.reverse();
-        for (int i:reachSet.os) {
-            cout << i << " ";
-        }
-        cout << endl;
+        this->reachSet = graph.dfs();
     }
 
     int verify() {
 
-        //Reinitialize X
         T *Lxx = x.getLx();
+
+        //Reinitialize X
         x.read();
 
         int M = A.getSize();

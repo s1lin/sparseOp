@@ -16,44 +16,66 @@ using namespace std;
 
 namespace DataStructure {
 
-    // Class to represent a graph
     class Graph {
-        int V; // No. of vertices'
 
-        // Pointer to an array containing adjacency listsList
+        // Number of vertices
+        int numVer;
+
+        //Number Of levels
+        int level;
+
+        // Pointer to an array containing adjacency lists
         list<int> *adj;
 
-        // A function used by topologicalSort
-        void topologicalSortUtil(int v, bool visited[], stack<int> &Stack);
+        // A function used by dfs
+        void dfsUtil(int v, bool *visited, stack<int> &s);
 
         std::set<int> nzB;
 
     public:
 
-        Graph(int V, std::set<int> nzB); // Constructor
+        Graph(int numVer, std::set<int> nzB) {
+            this->nzB = nzB;
+            this->numVer = numVer;
+            adj = new list<int>[numVer];
+        }
 
         // function to add an edge to graph
-        void addEdge(int v, int w);
+        void addEdge(int v, int w) {
+//            cout << v + 1 << "->" << w + 1 << "     ";
+            adj[v].push_back(w); // Add w to v’s list.
+        }
 
-        // prints a Topological Sort of the complete graph
-        void topologicalSort();
+        // prints a dfs of the complete graph
+        stack<int> dfs() {
 
-        void print();
+            stack<int> s;
+            level = 0;
+
+            // Mark all the vertices as not visited
+            bool *visited = new bool[numVer];
+            for (int i = 0; i < numVer; i++)
+                visited[i] = false;
+
+            // Call the recursive helper function to store Topological Sort
+            // starting from all vertices one by one
+            for (int i:nzB)
+                if (!visited[i])
+                    dfsUtil(i, visited, s);
+
+//            stack<int> s2 = s;
+////             Print contents of stack
+//            while (!s2.empty()) {
+//                cout << s2.top() + 1 << " ";
+//                s2.pop();
+//            }
+
+            return s;
+        }
+
     };
 
-    Graph::Graph(int V, std::set<int> nzB) {
-        this->nzB = nzB;
-        this->V = V;
-        adj = new list<int>[V];
-    }
-
-    void Graph::addEdge(int v, int w) {
-        cout << v+1 << "->" << w+1 <<"     ";
-        adj[v].push_back(w); // Add w to v’s list.
-    }
-
-// A recursive function used by topologicalSort
-    void Graph::topologicalSortUtil(int v, bool visited[], stack<int> &Stack) {
+    void Graph::dfsUtil(int v, bool *visited, stack<int> &s) {
         // Mark the current node as visited.
         visited[v] = true;
 
@@ -62,35 +84,13 @@ namespace DataStructure {
 
         for (i = adj[v].begin(); i != adj[v].end(); ++i) {
             if (!visited[*i])
-                topologicalSortUtil(*i, visited, Stack);
+                dfsUtil(*i, visited, s);
         }
         // Push current vertex to stack which stores result
-        Stack.push(v);
+        s.push(v);
+
     }
 
-// The function to do Topological Sort. It uses recursive topologicalSortUtil()
-    void Graph::topologicalSort() {
-
-        stack<int> Stack;
-
-        // Mark all the vertices as not visited
-        bool *visited = new bool[V];
-        for (int i = 0; i < V; i++)
-            visited[i] = false;
-
-        // Call the recursive helper function to store Topological Sort
-        // starting from all vertices one by one
-        for (int i:nzB)
-            if (!visited[i])
-                topologicalSortUtil(i, visited, Stack);
-
-        cout << endl;
-        // Print contents of stack
-        while (!Stack.empty()) {
-            cout << Stack.top() + 1 << " ";
-            Stack.pop();
-        }
-    }
 }
 
 #endif //SPARSEOP2_GRAPH_H
