@@ -16,7 +16,6 @@
 #include <sys/time.h>
 #include <omp.h>
 #include <set>
-#include <pair>
 #include <list>
 #include <iterator>
 #include <algorithm>
@@ -35,8 +34,8 @@ class TriangularSolve {
         set<int> rs;
         list<int> os;
     } reachSet;
-    
-    set<pair<int, int>> usedNodes;
+
+    multiset<int> usedNodes;
 
 public:
 
@@ -169,7 +168,7 @@ public:
 
         for (int i : nzB) {
 
-            this->usedNodes.insert(i);
+
             int index = i;
             int j = Lp[index];
 
@@ -184,26 +183,23 @@ public:
                 }
 
                 for (int p = j + 1; p < nz; p++) {
-                    if (Li[p] == Li[j] && this->usedNodes.insert()) {
-                        graph.addEdge(index, Li[j]);
+                    if (Li[p] == Li[j] && this->usedNodes.count(Li[p]) == 0) {
+                        this->usedNodes.insert(Li[p]);
+                        graph.addEdge(index, Li[p]);
+
                         cout << "Inner: Li[" << p << "]:" << Li[p] << " \n";
+
                         index = Li[p];
                         j = Lp[index];
                         break;
                     }
                 }
 
-//                if (!this->reachSet.rs.insert(Li[j]).second) {
-////                    graph.addEdge(index,Li[j]);
-//                    this->reachSet.os.push_back(Li[j]);
-//                    j++;
-//                    continue;
-//                }
-
+                j++;
             }
-        }
 
-//        graph.print();
+
+        }
 
         graph.topologicalSort();
 
