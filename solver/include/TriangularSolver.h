@@ -7,6 +7,7 @@
 
 #include <SparseMatrix.h>
 #include <Vector.h>
+#include <Graph.h>
 
 #include <Eigen/SparseCore>
 #include <Eigen/Sparse>
@@ -15,10 +16,12 @@
 #include <sys/time.h>
 #include <omp.h>
 #include <set>
+#include <pair>
 #include <list>
 #include <iterator>
 #include <algorithm>
 
+using namespace std;
 using namespace DataStructure;
 
 template<unsigned int VectorType, class T>
@@ -29,9 +32,11 @@ class TriangularSolve {
     Vector<VectorType, T> x;
 
     struct ReachSet {
-        std::set<int> rs;
-        std::list<int> os;
+        set<int> rs;
+        list<int> os;
     } reachSet;
+    
+    set<pair<int, int>> usedNodes;
 
 public:
 
@@ -47,33 +52,6 @@ public:
     void setx(Vector<VectorType, T> x) {
         this->x = x;
     }
-
-//    int cholesky() {
-//
-//        T *Lx = A.getLx();
-//        int *Lp = A.getLp();
-//        int *Li = A.getLi();
-//
-//        int nz = A.getNz();
-//        int M = A.getSize();
-//
-//        for (int k = 0; k < M; k++) {
-//            if (k == Li[k]) {
-//                Lx[Lp[k]] = sqrt(Lx[Lp[k]]); //A(k,k) = Sqrt(A(k,k))
-//
-//                for (int i = Lp[k] + 1; i < Lp[k+1]; i++) {
-//                    Lx[Lp[i]] /= Lx[Lp[k]]; //A(i,k) /= A(k,k)
-//                }
-//            }
-//
-//            for (int j = Lp[k] + 1; j < Lp[k+1]; j++) {
-//                for (int i = Lp[k]; i < M; i++) {
-//                    Lx[] -= Lx[] * Lx[]; //A(i,j) -= A(i,k) * A(j,k)
-//                }
-//            }
-//
-//        }
-//    }
 
     /*
     * Lower triangular solver Lx=b
@@ -91,6 +69,7 @@ public:
         if (VectorType == VectorType::sparse) {
             analysis();
             lsolve_sparse();
+            return 1;
         }
 
         T *Lx = A.getLx();
@@ -123,7 +102,17 @@ public:
 
         int nz = A.getNz();
 
-        for (int j : reachSet.os) {
+        set<int> os;
+        os.insert(13);
+        os.insert(12);
+        os.insert(11);
+        os.insert(8);
+        os.insert(3);
+        os.insert(5);
+        os.insert(9);
+        os.insert(10);
+
+        for (int j : os) {
 
             Lxx[j] /= Lx[Lp[j]];
 
@@ -169,22 +158,18 @@ public:
 
     int analysis() {
 
-        int e = 1; //level number
-
         int M = A.getSize();//Matrix Size
         int nz = A.getNz();//Matrix Size
-        T *Lx = A.getLx();
         int *Lp = A.getLp();
         int *Li = A.getLi();
+        set<int> nzB = x.getNzB();
+        bool *visited = new bool[M];
 
-        std::set<int> nzB = x.getNzB();
+        Graph graph(M, nzB);
 
         for (int i : nzB) {
 
-            if (this->reachSet.rs.insert(i).second) {
-                this->reachSet.os.push_back(i);
-            }
-
+            this->usedNodes.insert(i);
             int index = i;
             int j = Lp[index];
 
@@ -197,15 +182,10 @@ public:
                     j++;
                     continue;
                 }
-                cout << "Li[" << j << "]:" << Li[j] << "     ";
-                if (!this->reachSet.rs.insert(Li[j]).second) {
-                    j++;
-                    continue;
-                }
-                this->reachSet.os.push_back(Li[j]);
 
                 for (int p = j + 1; p < nz; p++) {
-                    if (Li[p] == Li[j] && !this->reachSet.rs.insert(Li[p]).second) {
+                    if (Li[p] == Li[j] && this->usedNodes.insert()) {
+                        graph.addEdge(index, Li[j]);
                         cout << "Inner: Li[" << p << "]:" << Li[p] << " \n";
                         index = Li[p];
                         j = Lp[index];
@@ -213,11 +193,22 @@ public:
                     }
                 }
 
+//                if (!this->reachSet.rs.insert(Li[j]).second) {
+////                    graph.addEdge(index,Li[j]);
+//                    this->reachSet.os.push_back(Li[j]);
+//                    j++;
+//                    continue;
+//                }
+
             }
         }
 
-        cout << endl << "ReachSet: Size=" << reachSet.rs.size() << "\n value: ";
+//        graph.print();
 
+        graph.topologicalSort();
+
+        cout << endl << "ReachSet: Size=" << reachSet.rs.size() << "\n value: ";
+//        reachSet.os.reverse();
         for (int i:reachSet.os) {
             cout << i << " ";
         }
@@ -243,7 +234,7 @@ public:
         Eigen::VectorXd b(M, 1), xV(M, 1);
 
         typedef Eigen::Triplet<double> Triplet;
-        std::vector<Triplet> triplets;
+        vector<Triplet> triplets;
 
         triplets.reserve(nz);
 

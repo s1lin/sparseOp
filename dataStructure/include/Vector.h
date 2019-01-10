@@ -72,7 +72,7 @@ namespace DataStructure {
         void print() {
             /* print matrix */
             for (i = 0; i < M; i++) {
-                if (Lx[i] != 0.0)
+
                     fprintf(stdout, "%2g ", Lx[i]);
             }
             fprintf(stdout, "\n");
