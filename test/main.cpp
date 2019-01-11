@@ -10,25 +10,28 @@
 using namespace DataStructure;
 using namespace std;
 
-int main() {
+int main(int argc, char *argv[]) {
 
+    //init time struct
     struct timeval tim;
 
-    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/af_0_k101.mtx");
-    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_sparse_af_0_k101.mtx");
-    Vector<VectorType::sparse, double> b2("/home/shilei/CLionProjects/sparseOp/matrix/b_sparse_af_0_k101.mtx");
-    Vector<VectorType::sparse, double> b3("/home/shilei/CLionProjects/sparseOp/matrix/b_sparse_af_0_k101.mtx");
+    //init A and x from
+    SparseMatrix<double> A(argv[0]);
+    Vector<VectorType::sparse, double> b(argv[1]);
+    Vector<VectorType::sparse, double> b2(argv[1]);
+    Vector<VectorType::sparse, double> b3(argv[1]);
 //    Vector<VectorType::dense, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b_dense_af_0_k101.mtx");
-////
-////    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/testA.mtx");
-////    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss.mtx");
-////    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b_sparse.mtx");
-////    Vector<VectorType::sparse, double> b2("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b_sparse.mtx");
-////    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/testA_b_sparse.mtx");
-////    Vector<VectorType::sparse, double> b2("/home/shilei/CLionProjects/sparseOp/matrix/testA_b_sparse.mtx");
 //
-//    cout << "-------Begin initialize A-------" << endl;
+//    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/testA.mtx");
+//    SparseMatrix<double> A("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss.mtx");
+//    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b_sparse.mtx");
+//    Vector<VectorType::sparse, double> b2("/home/shilei/CLionProjects/sparseOp/matrix/b1_ss_b_sparse.mtx");
+//    Vector<VectorType::sparse, double> b("/home/shilei/CLionProjects/sparseOp/matrix/testA_b_sparse.mtx");
+//    Vector<VectorType::sparse, double> b2("/home/shilei/CLionProjects/sparseOp/matrix/testA_b_sparse.mtx");
 //
+
+    cout << "-------Begin initialize A-------" << endl;
+
     gettimeofday(&tim, NULL);
     double t1 = tim.tv_sec + (tim.tv_usec / 1e+6);
 
