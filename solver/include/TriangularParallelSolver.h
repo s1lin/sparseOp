@@ -2,8 +2,8 @@
 // Created by shilei on 1/8/19.
 //
 
-#ifndef SPARSEOP2_TRIANGULARSOLVER_H
-#define SPARSEOP2_TRIANGULARSOLVER_H
+#ifndef SPARSEOP2_TRIANGULARPARALLELSOLVER_H
+#define SPARSEOP2_TRIANGULARPARALLELSOLVER_H
 
 #include <SparseMatrix.h>
 #include <Vector.h>
@@ -25,7 +25,7 @@ using namespace std;
 using namespace DataStructure;
 
 template<unsigned int VectorType, class T>
-class TriangularSolve {
+class TriangularParallelSolver {
 
     SparseMatrix<T> A;
 
@@ -37,7 +37,7 @@ class TriangularSolve {
 
 public:
 
-    TriangularSolve(SparseMatrix<T> A, Vector<VectorType, T> x) {
+    TriangularParallelSolver(SparseMatrix<T> A, Vector<VectorType, T> x) {
         this->A = A;
         this->x = x;
     }
@@ -72,8 +72,10 @@ public:
         for (int j = 0; j < A.getSize(); j++) {
 
             Lxx[j] /= Lx[Lp[j]];
+            int p;
 
-            for (int p = Lp[j] + 1; p < Lp[j + 1]; p++) {
+#pragma omp parallel for shared(Lx, Lxx, Li, Lp) private(p)
+            for (p = Lp[j] + 1; p < Lp[j + 1]; p++) {
                 Lxx[Li[p]] -= Lx[p] * Lxx[j];
             }
 
@@ -92,37 +94,15 @@ public:
             int j = reachSet.top();
 
             Lxx[j] /= Lx[Lp[j]];
-
-            for (int p = Lp[j] + 1; p < Lp[j + 1]; p++) {
+            int p;
+//#pragma omp parallel for shared(Lx, Lxx) private(p)
+            for (p = Lp[j] + 1; p < Lp[j + 1]; p++) {
                 Lxx[Li[p]] -= Lx[p] * Lxx[j];
             }
 
             reachSet.pop();
         }
     }
-
-    int lsolve_parallel(int num_threads) {
-
-        T *Lx = A.getLx();
-        T *Lxx = x.getLx();
-
-        int *Lp = A.getLp();
-        int *Li = A.getLi();
-
-        int j, p;
-
-//        omp_set_num_threads(num_threads);
-
-        for (j = 0; j < A.getSize(); j++) {
-            Lxx[j] /= Lx[Lp[j]];
-
-            #pragma omp parallel for shared(Lx, Lxx) private(p)
-            for (p = Lp[j] + 1; p < Lp[j + 1]; p++) {
-                Lxx[Li[p]] -= Lx[p] * Lxx[j];
-            }
-        }
-    }
-
 
     int analysis() {
 
@@ -133,7 +113,7 @@ public:
 
         Graph graph(A.getSize(), nzB);
 
-//        #pragma omp parallel for
+        #pragma omp parallel for
         for (int j = 0; j < A.getSize(); j++) {
             for (int p = Lp[j] + 1; p < Lp[j + 1]; p++) {
                 graph.addEdge(j, Li[p]);
@@ -207,4 +187,4 @@ public:
     }
 };
 
-#endif //SPARSEOP2_TRIANGULARSOLVER_H
+#endif //SPARSEOP2_TRIANGULARPARALLELSOLVER_H
