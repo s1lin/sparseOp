@@ -1,4 +1,4 @@
-project(test)
+project(main)
 
 # Create the executable
 add_executable(${PROJECT_NAME} main.cpp)
