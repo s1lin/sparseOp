@@ -24,22 +24,27 @@
 using namespace std;
 using namespace DataStructure;
 
-template<unsigned int VectorType, class T>
+template<class T>
 class TriangularSolve {
 
     //Sparse Matrix
     SparseMatrix<T> A;
 
     //Right hand side
-    Vector<VectorType, T> x;
+    Vector<T> x;
 
     //Reach set generates from Matrix
     stack<int> reachSet;
 
 public:
 
+    //default Constructor
+    TriangularSolve(){
+
+    }
+
     //Constructor
-    TriangularSolve(SparseMatrix<T> A, Vector<VectorType, T> x) {
+    TriangularSolve(SparseMatrix<T> A, Vector<T> x) {
         this->A = A;
         this->x = x;
     }
@@ -50,7 +55,7 @@ public:
     }
 
     //set RHS
-    void setx(Vector<VectorType, T> x) {
+    void setx(Vector<T> x) {
         this->x = x;
     }
 
@@ -82,6 +87,7 @@ public:
             for (int p = Lp[j] + 1; p < Lp[j + 1]; p++) {
                 Lxx[Li[p]] -= Lx[p] * Lxx[j];
             }
+
         }
     }
 
@@ -106,7 +112,6 @@ public:
 
         //backward substitute
         while (!reachSet.empty()) {
-
 
             int j = reachSet.top();
 
@@ -142,6 +147,7 @@ public:
         Graph g(A.getSize(), nzB);
 
         //adding edges
+        #pragma omp parallel for
         for (int j = 0; j < A.getSize(); j++)
             for (int p = Lp[j] + 1; p < Lp[j + 1]; p++)
                 g.addEdge(j, Li[p]);

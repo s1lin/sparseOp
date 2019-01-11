@@ -30,10 +30,12 @@ namespace DataStructure {
         // A function used by dfs
         void dfsUtil(int v, bool *visited, stack<int> &s);
 
+        //contains indices of nonzeros of right hand side vector
         std::set<int> nzB;
 
     public:
 
+        //constructor
         Graph(int numVer, std::set<int> nzB) {
             this->nzB = nzB;
             this->numVer = numVer;
@@ -42,7 +44,6 @@ namespace DataStructure {
 
         // function to add an edge to graph
         void addEdge(int v, int w) {
-//            cout << v + 1 << "->" << w + 1 << "     ";
             adj[v].push_back(w); // Add w to v’s list.
         }
 
@@ -63,18 +64,12 @@ namespace DataStructure {
                 if (!visited[i])
                     dfsUtil(i, visited, s);
 
-//            stack<int> s2 = s;
-////             Print contents of stack
-//            while (!s2.empty()) {
-//                cout << s2.top() + 1 << " ";
-//                s2.pop();
-//            }
-
             return s;
         }
 
     };
 
+    // A recursive function used by dfs
     void Graph::dfsUtil(int v, bool *visited, stack<int> &s) {
         // Mark the current node as visited.
         visited[v] = true;

@@ -18,35 +18,80 @@ using namespace std;
 
 namespace DataStructure {
 
-    template<unsigned int VT, class T>
+    template<class T>
     class Vector {
 
-        int ret_code, i, M, nz;
+        //return code from mmio
+        int ret_code;
 
+        //type of the matrix
         MM_typecode matcode;
 
-        FILE *f;
-
-        T *Lx;
-
+        //.mtx file name
         const char *mtx_file;
 
+        /*
+         * M: num of rows
+         * nz: num of non zeros;
+         */
+        int M, nz;
+
+        //value of RHS
+        T *Lx;
+
+        //store .mtx file
+        FILE *f;
+
+        //type of the Vector
+        int VT;//dense or sparse
+
+        //the indices of nonzeros of RHS
         std::set<int> nzB;
 
     public:
-        Vector() {
 
-        }
+        //default constructor
+        Vector() {}
 
+        //constructor
         Vector(const char *mtx) {
             this->mtx_file = mtx;
         }
 
+        //read routine and depends on the type of the vector and invokes different routines.
         void read() {
+
+            //Check the file:
+            if ((f = fopen(mtx_file, "r")) == nullptr)
+                exit(1);
+
+            //Go through banner:
+            if (mm_read_banner(f, &matcode) != 0) {
+                printf("Could not process Matrix Market banner.\n");
+                exit(1);
+            }
+
+            //Go through matrix type:
+            if (mm_is_complex(matcode) && mm_is_matrix(matcode) &&
+                mm_is_sparse(matcode)) {
+                printf("Not support Matrix type: [%s]\n", mm_typecode_to_str(matcode));
+                exit(1);
+            }
+
+            //read the dimensions and number of nonzeros of the matrix
+            int N;
+            if ((ret_code = mm_read_mtx_array_size(f, &M, &N)) != 0)
+                exit(1);
+
+            //allocate memory
+            Lx = (T *) malloc(M * sizeof(T));
+
+            //chose different reader based on the vector type
             switch (VT) {
                 case 0:
                     readDense(this->mtx_file);
                     break;
+
                 case 1:
                     readSparse(this->mtx_file);
                     break;
@@ -56,24 +101,32 @@ namespace DataStructure {
             }
         }
 
+        //get the size of the RHS
         int getSize() {
             return this->M;
         }
 
+        //get the value of RHS
         T *getLx() {
             return this->Lx;
         }
 
-        std::set<int> getNzB(){
+        //get the indices of the nonzeros in RHS
+        std::set<int> getNzB() {
             return this->nzB;
         }
 
+        //set the type of the vector
+        void setVT(VectorType vt) {
+            this->VT = vt;
+        }
 
+        //print vector
         void print() {
-            /* print matrix */
-            for (i = 0; i < M; i++) {
 
-                    fprintf(stdout, "%2g ", Lx[i]);
+            for (int i = 0; i < M; i++) {
+
+                fprintf(stdout, "%2g ", Lx[i]);
             }
             fprintf(stdout, "\n");
             fprintf(stdout, "\n");
@@ -84,85 +137,43 @@ namespace DataStructure {
     private:
 
         void readDense(const char *mtx) {
-            mtx_file = mtx;
-            if ((f = fopen(mtx_file, "r")) == nullptr)
-                exit(1);
 
+            //scan the .mtx line by line from 0 to the size of the RHS
+            for (int i = 0; i < M; i++)
+                fscanf(f, "%lg\n", &Lx[i]);
 
-            if (mm_read_banner(f, &matcode) != 0) {
-                printf("Could not process Matrix Market banner.\n");
-                exit(1);
-            }
-
-
-            if (mm_is_complex(matcode) && mm_is_matrix(matcode) &&
-                mm_is_sparse(matcode)) {
-                printf("Not support Matrix type: [%s]\n", mm_typecode_to_str(matcode));
-                exit(1);
-            }
-
-            /* dimension*/
-            int N;
-            if ((ret_code = mm_read_mtx_array_size(f, &M, &N)) != 0)
-                exit(1);
-
-            /* compressed column storage */
-
-            Lx = (T *) malloc(M * sizeof(T));
-
-            for (i = 0; i < M; i++) {
-                T curr_val;
-                fscanf(f, "%lg\n", &curr_val);
-                Lx[i] = curr_val;
-            }
-
-            if (f != stdin) {
+            //close file
+            if (f != stdin)
                 fclose(f);
-            }
         }
 
         void readSparse(const char *mtx) {
-            mtx_file = mtx;
-            if ((f = fopen(mtx_file, "r")) == nullptr)
-                exit(1);
 
+            //initialize variables
+            T curr_val;
 
-            if (mm_read_banner(f, &matcode) != 0) {
-                printf("Could not process Matrix Market banner.\n");
-                exit(1);
-            }
+            for (int i = 0; i < nz; i++) {
 
+                int curr_i, curr_j;
 
-            if (mm_is_complex(matcode) && mm_is_matrix(matcode) &&
-                mm_is_sparse(matcode)) {
-                printf("Not support Matrix type: [%s]\n", mm_typecode_to_str(matcode));
-                exit(1);
-            }
-
-            /* dimension*/
-            int N;
-            if ((ret_code = mm_read_mtx_crd_size(f, &M, &N, &nz)) != 0)
-                exit(1);
-
-
-            /* compressed column storage */
-
-            Lx = (T *) malloc(M * sizeof(T));
-
-            for (i = 0; i < nz; i++) {
-                int curr_j, curr_i;
-                T curr_val;
+                //scan line by line
                 fscanf(f, "%d %d %lg\n", &curr_i, &curr_j, &curr_val);
+
+                //store
                 Lx[curr_i - 1] = curr_val;
+
+                //also put in the current index of non zero element
                 nzB.insert(curr_i - 1);//B = {i|bi != 0} the index of nonzero elements of b.
             }
 
-            if (f != stdin) {
+            //close file
+            if (f != stdin)
                 fclose(f);
-            }
-
         }
+
     };
+
+
 }
 
 
